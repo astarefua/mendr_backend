@@ -103,7 +103,7 @@ public class DoctorController {
         service.setAvailability(email, availabilityList);
     }
 
-    
+    //updates already created availabilities
     @PatchMapping("/availability/{availabilityId}")
     @PreAuthorize("hasRole('DOCTOR')")
     public DoctorAvailabilityRequestDTO updateAvailability(@PathVariable Long availabilityId,

@@ -60,18 +60,6 @@ public class DoctorAvailabilityService {
     }
 
 
-//    public void deleteAvailability(Long id, String doctorEmail) {
-//        DoctorAvailability availability = availabilityRepo.findById(id)
-//            .orElseThrow(() -> new RuntimeException("Availability not found"));
-//
-//        if (!availability.getDoctor().getEmail().equalsIgnoreCase(doctorEmail)) {
-//            throw new AccessDeniedException("Not your availability");
-//        }
-//
-//        availabilityRepo.deleteById(id);
-//    }
-
-
     
     public List<DoctorAvailabilityRequestDTO> getAvailabilityByDoctor(Long doctorId) {
         Doctor doctor = doctorRepo.findById(doctorId)

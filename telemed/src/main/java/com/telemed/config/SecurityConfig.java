@@ -36,6 +36,8 @@ public class SecurityConfig {
                     .requestMatchers("/api/doctors/**").hasAnyRole("ADMIN","DOCTOR")    // For doctor endpoints
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/appointments/status").hasAnyRole("ADMIN", "DOCTOR")
+                    .requestMatchers("/api/video/**").hasAnyRole("DOCTOR")
+
 
 
                     .anyRequest().authenticated()

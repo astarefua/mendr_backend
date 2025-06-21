@@ -26,10 +26,18 @@ public class Appointment {
     private String status = "PENDING"; // NEW FIELD: PENDING, COMPLETED, CANCELLED
 
 
-    //private String status; // e.g., "PENDING", "APPROVED", "CANCELLED" , "COMPLETED"
+    
     
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
     private Prescription prescription;
+    
+    private boolean paid;
+
+    
+    
+    
+    
+    
     // Getters and Setters
     public Long getId() { return id; }
 
@@ -52,4 +60,14 @@ public class Appointment {
     public void setPrescription(Prescription prescription) {
         this.prescription = prescription;
     }
+    
+    
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public void setPaid(boolean paid) {
+        this.paid = paid;
+    }
+
 }
