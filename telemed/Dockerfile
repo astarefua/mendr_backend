@@ -1,14 +1,23 @@
-# Start with a base image containing Java runtime
+# --- Stage 1: Build the application ---
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
+# Set working directory
+WORKDIR /app
+
+# Copy all files
+COPY . .
+
+# Package the application
+RUN mvn clean package -DskipTests
+
+# --- Stage 2: Run the application ---
 FROM openjdk:17-jdk-slim
 
-# Optional: Create a volume (not critical for basic apps)
-VOLUME /tmp
+# Create a working directory
+WORKDIR /app
 
-# ARG to specify the jar file built by Maven/Gradle
-ARG JAR_FILE=target/*.jar  # Use build/libs/*.jar if using Gradle
+# Copy the packaged jar from the previous stage
+COPY --from=build /app/target/*.jar app.jar
 
-# Copy the jar into the container
-COPY ${JAR_FILE} app.jar
-
-# Run the app
-ENTRYPOINT ["java","-jar","/app.jar"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
