@@ -3,6 +3,7 @@ package com.telemed.service;
 import com.telemed.dto.DoctorAvailabilityRequestDTO;
 import com.telemed.dto.DoctorRequestDTO;
 import com.telemed.dto.DoctorResponseDTO;
+import com.telemed.dto.DoctorSummaryDTO;
 import com.telemed.model.Doctor;
 import com.telemed.model.DoctorAvailability;
 import com.telemed.repository.DoctorAvailabilityRepository;
@@ -14,6 +15,7 @@ import java.io.IOException;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -283,6 +285,30 @@ public class DoctorService {
             // ✅ This handles the checked exception properly
             throw new RuntimeException("Failed to save profile picture", e);
         }
+    }
+    
+    
+    
+    
+    public List<DoctorSummaryDTO> getTopRatedDoctors(int limit) {
+        List<Doctor> doctors = repository.findByApprovedTrueOrderByReviewsRatingDesc(PageRequest.of(0, limit));
+
+        return doctors.stream()
+                .map(d -> {
+                    List<String> availableDays = availabilityRepo.findByDoctor(d).stream()
+                        .map(a -> a.getDayOfWeek().toString()) // e.g., "MONDAY"
+                        .collect(Collectors.toList());
+
+                    return new DoctorSummaryDTO(
+                            d.getId(),
+                            d.getName(),
+                            d.getSpecialty(),
+                            d.getProfilePictureUrl(),
+                            d.getReviewsRating(),
+                            availableDays
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     

@@ -3,6 +3,8 @@ package com.telemed.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,8 +40,12 @@ public class Doctor extends User {
     @Lob
     private String bio; // About Me
     
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<DoctorAvailability> availabilities = new ArrayList<>();
+    
+//    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    private List<DoctorAvailability> availabilities = new ArrayList<>();
 
     public List<DoctorAvailability> getAvailabilities() {
         return availabilities;

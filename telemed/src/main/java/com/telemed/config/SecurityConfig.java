@@ -2,6 +2,9 @@ package com.telemed.config;
 
 import com.telemed.security.CustomUserDetailsService;
 import com.telemed.security.JWTFilter;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,11 +32,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JWTFilter jwtFilter) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(request -> {
+                    var config = new org.springframework.web.cors.CorsConfiguration();
+                    config.setAllowedOrigins(List.of("*")); // 👈 Allow all origins (for testing)
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    return config;
+                }))
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/**").permitAll()  // Allow registration and login
                     .requestMatchers("/uploads/**").permitAll()  // ✅ Allow public image access
                     .requestMatchers("/api/patients/**").hasAnyRole("ADMIN","PATIENT")  // Only authenticated PATIENT can access
-                    .requestMatchers("/api/doctors/**").hasAnyRole("ADMIN","DOCTOR")    // For doctor endpoints
+                    .requestMatchers("/api/doctors/**").permitAll()    // For doctor endpoints
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/appointments/status").hasAnyRole("ADMIN", "DOCTOR")
                     .requestMatchers("/api/video/**").hasAnyRole("DOCTOR")

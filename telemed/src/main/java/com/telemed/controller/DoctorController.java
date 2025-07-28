@@ -3,6 +3,7 @@ package com.telemed.controller;
 import com.telemed.dto.DoctorAvailabilityRequestDTO;
 import com.telemed.dto.DoctorRequestDTO;
 import com.telemed.dto.DoctorResponseDTO;
+import com.telemed.dto.DoctorSummaryDTO;
 import com.telemed.model.DoctorAvailability;
 import com.telemed.security.SecurityUtils;
 import com.telemed.service.DoctorAvailabilityService;
@@ -45,14 +46,21 @@ public class DoctorController {
         return service.getAllDoctors();
     }
     
+    
     @GetMapping("/{id}")
     public DoctorResponseDTO getById(@PathVariable Long id) {
-        String requesterEmail = SecurityUtils.getCurrentUserEmail();
-        if (!service.isOwnerOrAdmin(id, requesterEmail)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
         return service.getDoctorById(id);
     }
+
+    
+//    @GetMapping("/{id}")
+//    public DoctorResponseDTO getById(@PathVariable Long id) {
+//        String requesterEmail = SecurityUtils.getCurrentUserEmail();
+//        if (!service.isOwnerOrAdmin(id, requesterEmail)) {
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+//        }
+//        return service.getDoctorById(id);
+//    }
 
 
 
@@ -80,6 +88,7 @@ public class DoctorController {
     }
     
     @GetMapping("/search")
+    
     public List<DoctorResponseDTO> searchDoctors(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String specialty) {
@@ -89,7 +98,7 @@ public class DoctorController {
 
     
     @GetMapping("/{id}/availability")
-    @PreAuthorize("hasAnyRole('PATIENT', 'ADMIN')")
+    
     public List<DoctorAvailabilityRequestDTO> getDoctorAvailability(@PathVariable Long id) {
         return service.getAvailabilityByDoctorId(id);
     }
@@ -126,6 +135,14 @@ public class DoctorController {
     public DoctorResponseDTO uploadProfilePicture(@RequestParam("file") MultipartFile file) {
         String email = SecurityUtils.getCurrentUserEmail();
         return service.saveProfilePicture(email, file);
+    }
+    
+    
+    
+    
+    @GetMapping("/top-rated")
+    public List<DoctorSummaryDTO> getTopRatedDoctors(@RequestParam(defaultValue = "2") int limit) {
+        return service.getTopRatedDoctors(limit);
     }
 
 

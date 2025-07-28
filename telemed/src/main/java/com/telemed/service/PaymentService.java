@@ -55,35 +55,37 @@ public class PaymentService {
         return paymentResponse;
     }
 
-    public boolean verifyPayment(String reference) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(secretKey);
-
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<Map> response = restTemplate.exchange(
-            verifyUrl + reference,
-            HttpMethod.GET,
-            entity,
-            Map.class
-        );
-
-        Map data = (Map) response.getBody().get("data");
-        boolean success = "success".equals(data.get("status"));
-
-        //return "success".equals(data.get("status"));
-        
-        if (success) {
-            String email = ((Map<String, Object>) data.get("customer")).get("email").toString();
-            List<Appointment> appointments = appointmentRepo.findByPatientEmailAndStatus(email, "PENDING");
-            for (Appointment appointment : appointments) {
-                appointment.setStatus("CONFIRMED");
-                appointment.setPaid(true);
-                appointmentRepo.save(appointment);
-            }
-        }
-
-        return success;
+//    public boolean verifyPayment(String reference) {
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setBearerAuth(secretKey);
+//
+//        HttpEntity<?> entity = new HttpEntity<>(headers);
+//
+//        ResponseEntity<Map> response = restTemplate.exchange(
+//            verifyUrl + reference,
+//            HttpMethod.GET,
+//            entity,
+//            Map.class
+//        );
+//
+//        Map data = (Map) response.getBody().get("data");
+//        boolean success = "success".equals(data.get("status"));
+//
+//        //return "success".equals(data.get("status"));
+//        
+//        if (success) {
+//            String email = ((Map<String, Object>) data.get("customer")).get("email").toString();
+//            List<Appointment> appointments = appointmentRepo.findByPatientEmailAndStatus(email, "PENDING");
+//            for (Appointment appointment : appointments) {
+//                appointment.setStatus("CONFIRMED");
+//                appointment.setPaid(true);
+//                appointmentRepo.save(appointment);
+//            }
+//        }
+//
+//        return success;
+//    
+//    }
     
-    }
+    
 }

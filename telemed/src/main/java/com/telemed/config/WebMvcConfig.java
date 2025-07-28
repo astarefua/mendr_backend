@@ -12,4 +12,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
             .addResourceHandler("/uploads/**")  // what the browser requests
             .addResourceLocations("file:uploads/");  // where Spring finds files on disk
     }
+    
+    
 }

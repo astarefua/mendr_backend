@@ -19,6 +19,9 @@ public class Patient extends User {
     private String emergencyContactPhone;
 
     private LocalDateTime createdAt;
+    
+ // Add to your existing Patient.java
+    private String fcmToken; // NEW FIELD
 
     // Getters and Setters
     public String getName() { return name; }
@@ -56,4 +59,8 @@ public class Patient extends User {
         if (dateOfBirth == null) return 0;
         return Period.between(dateOfBirth, LocalDate.now()).getYears();
     }
+    
+ // Add getter/setter
+    public String getFcmToken() { return fcmToken; }
+    public void setFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
 }

@@ -12,6 +12,9 @@ import com.telemed.repository.DoctorAvailabilityRepository;
 import com.telemed.repository.DoctorRepository;
 import com.telemed.repository.PatientRepository;
 
+import com.telemed.service.EmailService;
+
+
 //import io.jsonwebtoken.lang.Collections;
 
 import org.springframework.stereotype.Service;
@@ -55,7 +58,6 @@ public class AppointmentService {
        
     }
     
-   
     
     public AppointmentResponseDTO bookAppointment(AppointmentRequestDTO dto) {
         Doctor doctor = doctorRepo.findById(dto.getDoctorId())
@@ -64,15 +66,19 @@ public class AppointmentService {
         Patient patient = patientRepo.findById(dto.getPatientId())
             .orElseThrow(() -> new RuntimeException("Patient not found"));
 
-        // Check for overlapping appointments
-        LocalDateTime requestedStart = dto.getAppointmentDate();
-        LocalDateTime requestedEnd = requestedStart.plusMinutes(30); // assuming 30-min appointment duration
+        // Round to minute precision to avoid time mismatches
+        LocalDateTime requestedStart = dto.getAppointmentDate()
+            .withSecond(0)
+            .withNano(0);
+        LocalDateTime requestedEnd = requestedStart.plusMinutes(30); // assuming 30-minute appointment
 
+        // ✅ Check for overlapping appointments
         boolean hasConflict = appointmentRepo.findByDoctorId(doctor.getId()).stream()
             .anyMatch(existing -> {
-                LocalDateTime existingStart = existing.getAppointmentDate();
+                LocalDateTime existingStart = existing.getAppointmentDate()
+                    .withSecond(0)
+                    .withNano(0);
                 LocalDateTime existingEnd = existingStart.plusMinutes(30);
-
                 return requestedStart.isBefore(existingEnd) && existingStart.isBefore(requestedEnd);
             });
 
@@ -80,6 +86,19 @@ public class AppointmentService {
             throw new RuntimeException("This slot is already booked. Please choose another time.");
         }
 
+        // ✅ Check if within doctor's availability (by day of week)
+        DayOfWeek requestedDay = requestedStart.getDayOfWeek();
+        boolean isWithinAvailability = availabilityRepo.findByDoctorId(doctor.getId()).stream().anyMatch(slot -> {
+            return slot.getDayOfWeek() == requestedDay &&
+                   !requestedStart.toLocalTime().isBefore(slot.getStartTime()) &&
+                   !requestedEnd.toLocalTime().isAfter(slot.getEndTime());
+        });
+
+        if (!isWithinAvailability) {
+            throw new RuntimeException("The selected time is not within the doctor's available slots.");
+        }
+
+        // ✅ Save appointment
         Appointment appointment = new Appointment();
         appointment.setAppointmentDate(requestedStart);
         appointment.setDoctor(doctor);
@@ -93,6 +112,96 @@ public class AppointmentService {
     }
 
     
+    
+//    public AppointmentResponseDTO bookAppointment(AppointmentRequestDTO dto) {
+//        Doctor doctor = doctorRepo.findById(dto.getDoctorId())
+//            .orElseThrow(() -> new RuntimeException("Doctor not found"));
+//
+//        Patient patient = patientRepo.findById(dto.getPatientId())
+//            .orElseThrow(() -> new RuntimeException("Patient not found"));
+//
+//        LocalDateTime requestedStart = dto.getAppointmentDate();
+//        LocalDateTime requestedEnd = requestedStart.plusMinutes(30); // assuming 30-minute appointment
+//
+//        // ✅ Check for overlapping appointments
+//        boolean hasConflict = appointmentRepo.findByDoctorId(doctor.getId()).stream()
+//            .anyMatch(existing -> {
+//                LocalDateTime existingStart = existing.getAppointmentDate();
+//                LocalDateTime existingEnd = existingStart.plusMinutes(30);
+//                return requestedStart.isBefore(existingEnd) && existingStart.isBefore(requestedEnd);
+//            });
+//
+//        if (hasConflict) {
+//            throw new RuntimeException("This slot is already booked. Please choose another time.");
+//        }
+//
+//        // ✅ Check if within doctor's availability
+//        boolean isWithinAvailability = availabilityRepo.findByDoctorId(doctor.getId()).stream().anyMatch(slot -> {
+//            LocalDate slotDate = slot.getDate();
+//            LocalTime start = slot.getStartTime();
+//            LocalTime end = slot.getEndTime();
+//
+//            return requestedStart.toLocalDate().equals(slotDate)
+//                && !requestedStart.toLocalTime().isBefore(start)
+//                && !requestedEnd.toLocalTime().isAfter(end);
+//        });
+//
+//        if (!isWithinAvailability) {
+//            throw new RuntimeException("The selected time is not within the doctor's available slots.");
+//        }
+//
+//        // ✅ Save appointment
+//        Appointment appointment = new Appointment();
+//        appointment.setAppointmentDate(requestedStart);
+//        appointment.setDoctor(doctor);
+//        appointment.setPatient(patient);
+//        appointment.setStatus("PENDING");
+//
+//        Appointment saved = appointmentRepo.save(appointment);
+//        logService.log("Appointment booked by patient " + patient.getEmail(), patient.getEmail());
+//
+//        return mapToDTO(saved);
+//    }
+//
+//    
+   
+    
+//    public AppointmentResponseDTO bookAppointment(AppointmentRequestDTO dto) {
+//        Doctor doctor = doctorRepo.findById(dto.getDoctorId())
+//            .orElseThrow(() -> new RuntimeException("Doctor not found"));
+//
+//        Patient patient = patientRepo.findById(dto.getPatientId())
+//            .orElseThrow(() -> new RuntimeException("Patient not found"));
+//
+//        // Check for overlapping appointments
+//        LocalDateTime requestedStart = dto.getAppointmentDate();
+//        LocalDateTime requestedEnd = requestedStart.plusMinutes(30); // assuming 30-min appointment duration
+//
+//        boolean hasConflict = appointmentRepo.findByDoctorId(doctor.getId()).stream()
+//            .anyMatch(existing -> {
+//                LocalDateTime existingStart = existing.getAppointmentDate();
+//                LocalDateTime existingEnd = existingStart.plusMinutes(30);
+//
+//                return requestedStart.isBefore(existingEnd) && existingStart.isBefore(requestedEnd);
+//            });
+//
+//        if (hasConflict) {
+//            throw new RuntimeException("This slot is already booked. Please choose another time.");
+//        }
+//
+//        Appointment appointment = new Appointment();
+//        appointment.setAppointmentDate(requestedStart);
+//        appointment.setDoctor(doctor);
+//        appointment.setPatient(patient);
+//        appointment.setStatus("PENDING");
+//
+//        Appointment saved = appointmentRepo.save(appointment);
+//        logService.log("Appointment booked by patient " + patient.getEmail(), patient.getEmail());
+//
+//        return mapToDTO(saved);
+//    }
+//
+//    
     
 
     public List<AppointmentResponseDTO> getAllAppointments() {
@@ -232,6 +341,20 @@ public class AppointmentService {
             .map(this::mapToDTO)
             .collect(Collectors.toList());
     }
+    
+    
+    
+    public List<AppointmentResponseDTO> getUpcomingAppointmentsForPatient(String email) {
+        LocalDate today = LocalDate.now();
+
+        return appointmentRepo.findAll().stream()
+            .filter(a -> a.getPatient().getEmail().equalsIgnoreCase(email))
+            .filter(a -> !a.getAppointmentDate().toLocalDate().isBefore(today))
+            .sorted((a1, a2) -> a1.getAppointmentDate().compareTo(a2.getAppointmentDate()))
+            .map(this::mapToDTO)
+            .collect(Collectors.toList());
+    }
+
     
     
     

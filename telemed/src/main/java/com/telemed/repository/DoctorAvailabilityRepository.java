@@ -30,6 +30,8 @@ import java.util.List;
 public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvailability, Long> {
     List<DoctorAvailability> findByDoctor(Doctor doctor);
     List<DoctorAvailability> findByDoctorAndDayOfWeek(Doctor doctor, DayOfWeek dayOfWeek);
+    List<DoctorAvailability> findByDoctorId(Long doctorId); // ✅ this is what you need
+
     //List<DoctorAvailability> deleteByDoctor(Doctor doctor);
     
     @Modifying

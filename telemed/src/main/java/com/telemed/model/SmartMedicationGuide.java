@@ -3,6 +3,8 @@ package com.telemed.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 public class SmartMedicationGuide {
 
@@ -10,10 +12,27 @@ public class SmartMedicationGuide {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
+    @JsonIgnoreProperties({"smartMedicationGuides", "appointments", "medicalRecords", "password", "hibernateLazyInitializer", "handler"})
     private Patient patient;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    @JsonIgnoreProperties({"smartMedicationGuides", "appointments", "patients", "password", "hibernateLazyInitializer", "handler"})
+    private Doctor doctor;
+    
+//    @ManyToOne
+//    @JoinColumn(name = "patient_id", nullable = false)
+//    private Patient patient;
+//    
+//    
+//    @ManyToOne
+//    @JoinColumn(name = "doctor_id", nullable = false)
+//    private Doctor doctor; // Track which doctor created this guide
 
+    
+    
 
     private String medicationName;
     private String visualDescription; // e.g., "red round pill"
@@ -31,7 +50,12 @@ public class SmartMedicationGuide {
     
     public Patient getPatient() { return patient; }
     public void setPatient(Patient patient) { this.patient = patient; }
+    
+    public Doctor getDoctor() { return doctor; }
+    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
 
+    
+    
 
     public String getMedicationName() { return medicationName; }
     public void setMedicationName(String medicationName) { this.medicationName = medicationName; }

@@ -33,7 +33,7 @@ public class DoctorResponseDTO {
         this.languagesSpoken = languagesSpoken;
         this.affiliations = affiliations;
         this.bio = bio;
-        
+        this.reviewsRating=reviewsRating;
     }
 
     // Getters only

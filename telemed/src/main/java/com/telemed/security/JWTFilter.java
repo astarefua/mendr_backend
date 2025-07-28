@@ -28,7 +28,19 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+    	
+    	String path = request.getRequestURI();
 
+    	// ✅ Bypass JWT filter for public endpoints
+        if (path.startsWith("/auth") ||
+            path.startsWith("/uploads") ||
+            path.equals("/api/doctors/search") ||   // match exact path
+            path.startsWith("/api/doctors/search")) { // or any params
+            filterChain.doFilter(request, response);
+            return;
+        }
+    	
+    	
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

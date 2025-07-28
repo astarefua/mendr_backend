@@ -2,6 +2,7 @@ package com.telemed.model;
 
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
@@ -19,6 +20,9 @@ public class DoctorAvailability {
     private LocalTime startTime;
 
     private LocalTime endTime;
+    
+    private LocalDate date;
+
 
     // Getters and Setters
 
@@ -61,4 +65,13 @@ public class DoctorAvailability {
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
+    
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
 }

@@ -14,10 +14,12 @@ public class JWTUtil {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long EXPIRATION_TIME = 86400000; // 1 day in ms
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role , Long id) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
+                .claim("id", id) // 👈 Add the ID to the token
+
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key)

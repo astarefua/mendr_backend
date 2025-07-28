@@ -32,6 +32,9 @@ public class Appointment {
     private Prescription prescription;
     
     private boolean paid;
+    
+    @Column(nullable = true)
+    private String videoRoomUrl;
 
     
     
@@ -68,6 +71,14 @@ public class Appointment {
 
     public void setPaid(boolean paid) {
         this.paid = paid;
+    }
+    
+    public String getVideoRoomUrl() { 
+        return videoRoomUrl; 
+    }
+
+    public void setVideoRoomUrl(String videoRoomUrl) { 
+        this.videoRoomUrl = videoRoomUrl; 
     }
 
 }
