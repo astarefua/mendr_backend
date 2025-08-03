@@ -22,28 +22,28 @@ public class Doctor extends User {
     private String profilePictureUrl; // Link to uploaded image
     private int yearsOfExperience;
 
-    @Lob
+
     private String education; // Educational background
 
-    @Lob
+
     private String certifications; // Board certifications
 
-    @Lob
+
     private String languagesSpoken; // Languages spoken
 
     @Column(nullable = true)
     private double reviewsRating; // Optional avg rating
 
-    @Lob
+
     private String affiliations; // Hospital or clinic affiliations
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String bio; // About Me
-    
+
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<DoctorAvailability> availabilities = new ArrayList<>();
-    
+
 //    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 //    private List<DoctorAvailability> availabilities = new ArrayList<>();
 
