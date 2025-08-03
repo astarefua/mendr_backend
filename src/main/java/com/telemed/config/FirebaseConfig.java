@@ -24,6 +24,8 @@ public class FirebaseConfig {
             throw new RuntimeException("FIREBASE_ADMIN_KEY_JSON environment variable is not set.");
         }
 
+        // 🔧 Fix escaped newlines in private key
+        firebaseKeyJson = firebaseKeyJson.replace("\\n", "\n");
         // 🔍 Debug preview (only log part of it to avoid leaking the full key)
         System.out.println("🔍 Firebase key JSON starts with: " +
                 firebaseKeyJson.substring(0, Math.min(100, firebaseKeyJson.length())) + "...");
